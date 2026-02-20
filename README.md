@@ -174,6 +174,7 @@ Use RFM for business communication + ML for behavioral discovery.
 ## 📂 Project Structure
 
 Bank-Customer-Segmentation/
+
 │
 
 ├── Bank_Customer_Segmentation.ipynb
