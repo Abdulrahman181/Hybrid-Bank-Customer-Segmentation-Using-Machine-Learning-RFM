@@ -175,8 +175,11 @@ Use RFM for business communication + ML for behavioral discovery.
 
 Bank-Customer-Segmentation/
 │
+
 ├── Bank_Customer_Segmentation.ipynb
+
 ├── bank_transactions.csv
+
 ├── README.md
 
 
