@@ -1,225 +1,31 @@
-# 🏦 Hybrid Bank Customer Segmentation System  
-### Machine Learning + RFM-Based Customer Intelligence Pipeline
+# Hybrid Bank Customer Segmentation
 
----
+This repository contains a Jupyter notebook prototype for customer-level RFM and clustering analysis. The notebook describes a bank-transactions workflow using K-Means, DBSCAN, PCA, and RFM scoring. It is not a validated or production-ready system.
 
-## 📌 Project Overview
+## Contents
 
-This project presents an **end-to-end customer segmentation pipeline** built using a real-world bank transactions dataset.
+- `Bank_Customer_Segmentation.ipynb` — analysis workflow.
+- `requirements.txt` — pinned Python dependencies.
 
-The goal is to segment customers into meaningful behavioral groups using:
+The transaction dataset is **not included**. No customer data is needed to inspect or syntax-check the notebook, but executing its analysis requires an authorized dataset copy.
 
-- 🔹 Machine Learning Clustering (KMeans & DBSCAN)
-- 🔹 Traditional RFM Analysis (Recency, Frequency, Monetary)
-- 🔹 Dimensionality Reduction (PCA)
-- 🔹 Business-Driven Interpretation
+## Run locally
 
-This hybrid approach combines **data-driven intelligence** with **business interpretability**, making the solution both technically robust and commercially practical.
+Use Python 3.10–3.12, then install the pinned dependencies and launch JupyterLab:
 
----
+```bash
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+python -m pip install -r requirements.txt
+jupyter lab
+```
 
-## 🎯 Business Objective
+Place an authorized `bank_transactions.csv` file in the repository root (next to the notebook), then run the notebook from top to bottom. The notebook checks for the file and reports its expected location if it is missing. The analysis expects these columns: `TransactionID`, `CustomerID`, `TransactionAmount (INR)`, `CustAccountBalance`, `CustomerDOB`, `TransactionDate`, `TransactionTime`, `CustLocation`, and `CustGender`.
 
-Banks need to:
+Do not commit the CSV or other customer-level exports. Check that your copy is appropriately licensed and that you are permitted to process it; remove or anonymize identifying data where required by your policies.
 
-- Identify high-value customers (VIPs)
-- Detect dormant or churn-risk customers
-- Understand behavioral spending patterns
-- Enable targeted marketing campaigns
-- Reduce customer attrition
+## Reproducibility and limitations
 
-This project delivers a scalable segmentation system to achieve these goals.
+The DBSCAN sample selection uses a fixed seed. The notebook's previously saved cell outputs and execution counts have been cleared so old data previews, plots, or scores are not presented as fresh results. DBSCAN is fit on a sample of at most 5,000 customers; its silhouette score is calculated only on non-noise points in that sample and is omitted when fewer than two non-noise clusters are found.
 
----
-
-## 📊 Dataset Overview
-
-The dataset contains:
-
-- 295,000+ transactions
-- 280,000+ unique customers
-- Demographics (Age, Gender, Location)
-- Account balance information
-- Transaction amount & timestamps
-
-Each row represents a transaction.
-
----
-
-## ⚙️ Project Pipeline
-
-### 1️⃣ Data Understanding & Cleaning
-
-- Date conversion & formatting
-- Missing value handling
-- Age correction & validation
-- Gender normalization
-- Feature extraction (Hour, ZeroBalanceFlag)
-
----
-
-### 2️⃣ Feature Engineering
-
-Transactions were aggregated at the **customer level**, generating:
-
-- TotalTransactions
-- TotalAmount
-- AvgTransactionAmount
-- AvgAccountBalance
-- ZeroBalanceRatio
-- Recency
-- CustomerLifetimeDays
-- Age
-
-This transforms raw transactional data into structured customer behavioral profiles.
-
----
-
-### 3️⃣ Feature Scaling & Transformation
-
-- Log transformation for skewed financial features
-- Median imputation
-- Standard scaling
-- PCA (95% variance retained)
-
-Original Features: 8  
-Reduced Components: 6  
-
-This ensures stability and performance in clustering.
-
----
-
-## 🤖 Machine Learning Segmentation
-
-### 🔹 KMeans Clustering
-- Optimal clusters selected via Elbow Method
-- Final model: 4 clusters
-- Silhouette Score: ~0.24
-
-### 🔹 DBSCAN
-- Density-based clustering
-- Better separation score (~0.34)
-- Detects noise/outliers
-
----
-
-## 📈 Cluster Profiling
-
-Clusters were interpreted based on:
-
-- Spending behavior
-- Account balance
-- Recency
-- Age distribution
-
-Example segments:
-
-- 🏆 High-Value Customers
-- ⚠ Dormant Customers
-- 💸 Low-Balance Risk Group
-- 📉 Moderate Activity Segment
-
----
-
-## 📊 Traditional RFM Segmentation
-
-Customers were also segmented using:
-
-- Recency
-- Frequency
-- Monetary
-
-Generated:
-- R_Score
-- F_Score
-- M_Score
-- RFM Segment Labels (VIP, Loyal, At Risk, Lost, Regular)
-
----
-
-## ⚖️ ML vs RFM Comparison
-
-| RFM | ML Clustering |
-|------|--------------|
-| Rule-based | Data-driven |
-| Easy to explain | Detects hidden patterns |
-| Business friendly | Multi-dimensional |
-
-### Best Practice:
-Use RFM for business communication + ML for behavioral discovery.
-
----
-
-## 📌 Key Insights
-
-- ML segmentation revealed multi-dimensional customer behavior beyond simple monetary value.
-- RFM was partially limited due to low transaction frequency variance.
-- DBSCAN showed stronger separation quality than KMeans.
-- PCA improved clustering stability and reduced noise.
-
----
-
-## 🚀 Technical Stack
-
-- Python
-- Pandas / NumPy
-- Seaborn / Matplotlib
-- Scikit-learn
-- PCA
-- KMeans
-- DBSCAN
-
----
-
-## 📂 Project Structure
-
-Bank-Customer-Segmentation/
-
-│
-
-├── Bank_Customer_Segmentation.ipynb
-
-├── bank_transactions.csv
-
-├── README.md
-
-
----
-
-## 🧠 Why This Project Matters
-
-This project demonstrates:
-
-✔ End-to-end ML pipeline  
-✔ Feature engineering expertise  
-✔ Business-driven interpretation  
-✔ Multiple clustering techniques  
-✔ Model evaluation  
-✔ Hybrid segmentation strategy  
-
-It bridges the gap between **technical modeling** and **real-world business application**.
-
----
-
-## 📈 Future Improvements
-
-- Hyperparameter optimization
-- Automated model selection
-- Dashboard deployment (Streamlit / Power BI)
-- Production pipeline integration
-- Churn prediction extension
-
----
-
-## 👤 Author
-
-**Abdelrahman**  
-Data Science & Machine Learning Enthusiast  
-
----
-
-## ⭐ Final Outcome
-
-A production-ready, scalable customer segmentation system combining traditional business logic with modern machine learning techniques.
-
----
+The dataset is absent from this repository, so the notebook has not been executed end to end here. Any scores or business interpretations previously stated for this project are unverified in this checkout and should not be treated as reproduced results. Clustering quality and segment meaning depend on the authorized input data and require independent validation before business use.
