@@ -1,225 +1,59 @@
-# 🏦 Hybrid Bank Customer Segmentation System  
-### Machine Learning + RFM-Based Customer Intelligence Pipeline
+# Hybrid Bank Customer Segmentation (ML + RFM)
 
----
+This repository contains a reproducible, exploratory customer-segmentation notebook based on bank transaction data. It combines customer-level behavioral features, KMeans/DBSCAN clustering, PCA visualization, and interpretable RFM labels.
 
-## 📌 Project Overview
+## Repository status
 
-This project presents an **end-to-end customer segmentation pipeline** built using a real-world bank transactions dataset.
+The repository contains the notebook and source documentation only; **the transaction dataset is not committed**. The notebook therefore fails fast with an actionable `FileNotFoundError` until a local dataset is supplied. No metric values in this README are presented as verified results.
 
-The goal is to segment customers into meaningful behavioral groups using:
+## Data contract
 
-- 🔹 Machine Learning Clustering (KMeans & DBSCAN)
-- 🔹 Traditional RFM Analysis (Recency, Frequency, Monetary)
-- 🔹 Dimensionality Reduction (PCA)
-- 🔹 Business-Driven Interpretation
+Provide a CSV with at least these columns:
 
-This hybrid approach combines **data-driven intelligence** with **business interpretability**, making the solution both technically robust and commercially practical.
+- `CustomerID`
+- `TransactionID`
+- `TransactionAmount (INR)`
+- `CustAccountBalance`
+- `CustomerDOB`
+- `TransactionDate`
 
----
+`CustGender`, `CustLocation`, and `TransactionTime` are optional. Dates are parsed with `dayfirst=True`, and invalid key rows are excluded with counts available in the notebook. The notebook does not invent replacement records or data.
 
-## 🎯 Business Objective
+Set the path explicitly (recommended):
 
-Banks need to:
+```bash
+export BANK_TRANSACTIONS_PATH=/absolute/path/to/bank_transactions.csv
+```
 
-- Identify high-value customers (VIPs)
-- Detect dormant or churn-risk customers
-- Understand behavioral spending patterns
-- Enable targeted marketing campaigns
-- Reduce customer attrition
+Alternatively place the file at `bank_transactions.csv` or `data/bank_transactions.csv` relative to the repository. Local data files are ignored by Git.
 
-This project delivers a scalable segmentation system to achieve these goals.
+## Setup and execution
 
----
+```bash
+python -m venv .venv
+. .venv/bin/activate
+python -m pip install -r requirements.txt
+jupyter notebook Bank_Customer_Segmentation.ipynb
+```
 
-## 📊 Dataset Overview
+The notebook has been cleared of saved outputs and execution counts. Run it only after configuring the dataset path. It uses `RANDOM_STATE = 42`; the DBSCAN sample is drawn with a seeded NumPy generator. The number of PCA components is selected by the 95% variance rule, and KMeans uses a fixed initialization seed and `n_init=10`.
 
-The dataset contains:
+## Method and validation notes
 
-- 295,000+ transactions
-- 280,000+ unique customers
-- Demographics (Age, Gender, Location)
-- Account balance information
-- Transaction amount & timestamps
+- This is an **unsupervised** workflow: there is no target variable and no valid supervised train/test split. Preprocessing and clustering are fit on the available historical customer population, so silhouette scores are in-sample descriptive diagnostics rather than production generalization estimates.
+- Feature engineering is performed at customer level before clustering. No cluster labels are used to construct the features, so target/label leakage is not present.
+- If this is promoted to a predictive production service, use a time-based holdout and fit preprocessing/model parameters on the earlier period only; the current notebook does not claim that validation.
+- DBSCAN is evaluated on a deterministic sample for runtime control. The notebook reports the sample scope and does not pretend that unsampled rows have DBSCAN labels.
+- Silhouette metrics are guarded for the single-cluster/noise-only cases and are not fabricated when undefined.
 
-Each row represents a transaction.
+## Static validation
 
----
+Run the repository checks without data:
 
-## ⚙️ Project Pipeline
+```bash
+python scripts/validate_notebook.py
+python -m unittest discover -s tests -v
+ruff check .
+```
 
-### 1️⃣ Data Understanding & Cleaning
-
-- Date conversion & formatting
-- Missing value handling
-- Age correction & validation
-- Gender normalization
-- Feature extraction (Hour, ZeroBalanceFlag)
-
----
-
-### 2️⃣ Feature Engineering
-
-Transactions were aggregated at the **customer level**, generating:
-
-- TotalTransactions
-- TotalAmount
-- AvgTransactionAmount
-- AvgAccountBalance
-- ZeroBalanceRatio
-- Recency
-- CustomerLifetimeDays
-- Age
-
-This transforms raw transactional data into structured customer behavioral profiles.
-
----
-
-### 3️⃣ Feature Scaling & Transformation
-
-- Log transformation for skewed financial features
-- Median imputation
-- Standard scaling
-- PCA (95% variance retained)
-
-Original Features: 8  
-Reduced Components: 6  
-
-This ensures stability and performance in clustering.
-
----
-
-## 🤖 Machine Learning Segmentation
-
-### 🔹 KMeans Clustering
-- Optimal clusters selected via Elbow Method
-- Final model: 4 clusters
-- Silhouette Score: ~0.24
-
-### 🔹 DBSCAN
-- Density-based clustering
-- Better separation score (~0.34)
-- Detects noise/outliers
-
----
-
-## 📈 Cluster Profiling
-
-Clusters were interpreted based on:
-
-- Spending behavior
-- Account balance
-- Recency
-- Age distribution
-
-Example segments:
-
-- 🏆 High-Value Customers
-- ⚠ Dormant Customers
-- 💸 Low-Balance Risk Group
-- 📉 Moderate Activity Segment
-
----
-
-## 📊 Traditional RFM Segmentation
-
-Customers were also segmented using:
-
-- Recency
-- Frequency
-- Monetary
-
-Generated:
-- R_Score
-- F_Score
-- M_Score
-- RFM Segment Labels (VIP, Loyal, At Risk, Lost, Regular)
-
----
-
-## ⚖️ ML vs RFM Comparison
-
-| RFM | ML Clustering |
-|------|--------------|
-| Rule-based | Data-driven |
-| Easy to explain | Detects hidden patterns |
-| Business friendly | Multi-dimensional |
-
-### Best Practice:
-Use RFM for business communication + ML for behavioral discovery.
-
----
-
-## 📌 Key Insights
-
-- ML segmentation revealed multi-dimensional customer behavior beyond simple monetary value.
-- RFM was partially limited due to low transaction frequency variance.
-- DBSCAN showed stronger separation quality than KMeans.
-- PCA improved clustering stability and reduced noise.
-
----
-
-## 🚀 Technical Stack
-
-- Python
-- Pandas / NumPy
-- Seaborn / Matplotlib
-- Scikit-learn
-- PCA
-- KMeans
-- DBSCAN
-
----
-
-## 📂 Project Structure
-
-Bank-Customer-Segmentation/
-
-│
-
-├── Bank_Customer_Segmentation.ipynb
-
-├── bank_transactions.csv
-
-├── README.md
-
-
----
-
-## 🧠 Why This Project Matters
-
-This project demonstrates:
-
-✔ End-to-end ML pipeline  
-✔ Feature engineering expertise  
-✔ Business-driven interpretation  
-✔ Multiple clustering techniques  
-✔ Model evaluation  
-✔ Hybrid segmentation strategy  
-
-It bridges the gap between **technical modeling** and **real-world business application**.
-
----
-
-## 📈 Future Improvements
-
-- Hyperparameter optimization
-- Automated model selection
-- Dashboard deployment (Streamlit / Power BI)
-- Production pipeline integration
-- Churn prediction extension
-
----
-
-## 👤 Author
-
-**Abdelrahman**  
-Data Science & Machine Learning Enthusiast  
-
----
-
-## ⭐ Final Outcome
-
-A production-ready, scalable customer segmentation system combining traditional business logic with modern machine learning techniques.
-
----
+These checks parse every notebook code cell with Python AST, reject saved outputs/execution counts and machine-specific `/content` paths, and run Ruff diagnostics. A full notebook execution is intentionally not claimed when the dataset or optional heavy runtime dependencies are unavailable.
