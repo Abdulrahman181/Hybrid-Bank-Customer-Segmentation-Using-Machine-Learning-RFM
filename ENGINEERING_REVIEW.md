@@ -1,7 +1,7 @@
 # Engineering Review — Hybrid Bank Customer Segmentation
 
-**Repository:** `Abdulrahman181/Hybrid-Bank-Customer-Segmentation-Using-Machine-Learning-RFM`  
-**Review date:** 2026-10-13  
+**Repository:** `Abdulrahman181/Hybrid-Bank-Customer-Segmentation-Using-Machine-Learning-RFM`
+**Review date:** 2026-10-13
 **Scope:** committed Python/notebook/documentation/dependency surface in the requested repository only
 
 ## Executive summary
@@ -87,8 +87,43 @@ Static validation confirmed 20 notebook cells, zero saved outputs, and zero exec
 
 ## Execution caveat
 
-A full notebook run was **not claimed**. The supplied checkout contains no transaction CSV, and the Sandbox Python environment does not currently have `scikit-learn` importable. The declared `requirements.txt` provides the intended installation path; a real run still requires the user-supplied dataset and installing the declared dependencies. Consequently, no clustering or RFM result values are included in this review.
+A full notebook run was **not claimed**. The supplied checkout contains no transaction CSV. The current Sandbox has the declared ML dependencies available and was used only for the synthetic smoke execution documented below; a real run still requires the user-supplied dataset. Consequently, no production clustering or RFM result values are included in this review.
 
 ## Local Git state
 
 Changes are intended to be committed locally only. No push or remote mutation is part of this review.
+
+## Second Senior Review
+
+**Review date:** 2026-10-15
+**Scope:** complete tracked checkout, including the notebook, Python validator/tests, README, requirements, ignore rules, Git history/diff, and repository state.
+
+### Findings and fixes
+
+1. **Pandas runtime incompatibility — fixed.** The notebook called `DataFrame.describe(datetime_is_numeric=True)`. The declared pandas range includes pandas 2.3, where this keyword is no longer accepted; a dependency-compatible synthetic execution failed with `TypeError`. The call now uses the portable `df.describe(include="all")` form.
+2. **Silhouette edge cases — fixed.** The previous guard only checked for more than one label. Silhouette is undefined when every row has a distinct label (`n_labels == n_samples`), and DBSCAN can provide zero or one non-noise rows. A shared guard now requires `2 <= n_labels <= n_samples - 1` and reports `NaN` with an explanation instead of raising or inventing a score.
+3. **Blank identifiers — fixed.** Whitespace is stripped from `CustomerID` and `TransactionID`; blank identifiers are now included in the invalid-row count and actually excluded before grouping. Missing/invalid numeric transaction amounts and non-finite values are also rejected from required transaction rows.
+4. **Transaction frequency and balance quality — fixed.** Customer frequency now counts distinct `TransactionID` values rather than duplicate rows. `ZeroBalanceRatio` excludes missing account balances from its denominator and returns undefined when no balance is observed, allowing the existing imputer to handle it honestly.
+5. **Notebook validation coverage — fixed.** The validator now discovers every repository notebook, validates notebook structure/source types/cell types/duplicate cell IDs, parses every code cell, rejects saved outputs and execution counts, and checks forbidden machine-specific paths. Tests now cover all-notebook validation and a deliberately invalid notebook fixture.
+
+### Second-review validation
+
+Passed in this checkout:
+
+```text
+python scripts/validate_notebook.py       OK: 1 notebook(s) passed static validation
+python -m unittest discover -s tests -v  Ran 3 tests — OK
+ruff check .                              All checks passed
+python -m py_compile scripts/validate_notebook.py tests/test_static_validation.py
+                                           passed
+git diff --check                         passed
+```
+
+A dependency-backed smoke execution was also run with a four-customer, contract-valid temporary CSV created only for testing. It completed all notebook code without exception and correctly left KMeans/DBSCAN silhouette as undefined for mathematically invalid label cardinalities. This is not a production dataset run and no metrics are claimed from it.
+
+### Remaining risks and boundaries
+
+- The real transaction dataset is absent, so no full-data clustering, data-distribution review, or production metric validation is possible from this checkout.
+- The notebook is an in-sample unsupervised descriptive analysis. It does not implement a time-based holdout, trained artifact export, serving API, or UI.
+- The fixed four-cluster KMeans choice and DBSCAN parameters remain analysis choices requiring domain/data validation; cluster IDs have no inherent business meaning.
+- `dayfirst=True` is retained as an explicit input contract for the supplied CSV. Ambiguous date formats or semantically incorrect source values still require upstream data stewardship.
